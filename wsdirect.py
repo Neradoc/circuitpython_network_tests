@@ -1,27 +1,30 @@
-import wifi
-import socketpool
-import ssl
-import secrets
-
-import random
-import adafruit_binascii as binascii
-
 """
 NOTE: requires the usual secrets.py file
 
 The test
 - connects to the server
 - sends headers to switch to websockets mode
-- waits for the server to send headers back
+- reads the headers that the server sends back
 
-What's expected from the server:
+Note: the code doesn't do anything else with the connection,
+it will hang or disconnect, but it should receive the headers first.
+
+Example of what's expected from the server: (echo.websocket.org)
 < HTTP/1.1 101 Web Socket Protocol Handshake
 < Connection: Upgrade
 < Date: Sat, 06 Feb 2021 22:54:49 GMT
-< Sec-WebSocket-Accept: q45sdf1sq5df6qsd4qs6df5=
+< Sec-WebSocket-Accept: OOMXQaWnrBjhJud1mEuqJA=
 < Server: Kaazing Gateway
 < Upgrade: websocket
 <
+Or from python local server:
+< HTTP/1.1 101 Switching Protocols
+< Upgrade: websocket
+< Connection: Upgrade
+< Sec-WebSocket-Accept: etUrhYSy0IQLjrc2K5DTJg=
+< Date: Sun, 07 Feb 2021 00:10:48 GMT
+< Server: Python/3.8 websockets/8.1
+< 
 
 Different tests available
 - LOCAL=False connects to echo.websocket.org
@@ -35,22 +38,32 @@ import asyncio
 import websockets
 
 async def do_echo(websocket, path):
-    print("Connection from {}".format(websocket.remote_address))
-    name = await websocket.recv()
-    print("< {}".format(name))
+	try:
+		print("Connection from {}".format(websocket.remote_address))
+		name = await websocket.recv()
+		print("< {}".format(name))
 
-    greeting = "{}".format(name)
-    await websocket.send(greeting)
-    print("> {}".format(greeting))
+		greeting = "{}".format(name)
+		await websocket.send(greeting)
+		print("> {}".format(greeting))
+	except Exception as ex:
+		print("ERROR",ex)
 
 print("Starting")
 start_server = websockets.serve(do_echo, '0.0.0.0', 5000)
 
 asyncio.get_event_loop().run_until_complete(start_server)
 asyncio.get_event_loop().run_forever()
-
-
 """
+
+import wifi
+import socketpool
+import ssl
+import secrets
+
+import random
+import adafruit_binascii as binascii
+
 SSL, LOCAL = (True, False) # wss://echo.websocket.org
 SSL, LOCAL = (False, False) # ws://echo.websocket.org
 SSL, LOCAL = (False, True) # ws://localip
