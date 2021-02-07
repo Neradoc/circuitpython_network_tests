@@ -45,7 +45,7 @@ def read(sock,length):
 	dataString = b""
 	while total < length:
 		reste = length - total
-		num = sock.recv_into(sock_buffer,reste)
+		num = sock.recv_into(sock_buffer,min(BUFFER_SIZE,reste))
 		#
 		if num == 0:
 			# timeout

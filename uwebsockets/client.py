@@ -21,8 +21,7 @@ class WebsocketClient(Websocket):
     is_client = True
 
 def readline(sock):
-    # \r\n
-    buffer =  bytearray(2)
+    buffer =  bytearray(1)
     dataString = ""
     while True:
         num = sock.recv_into(buffer,1)
