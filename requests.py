@@ -1,6 +1,7 @@
-import wifi
-import ssl
 import socketpool
+import ssl
+import sys
+import wifi
 import adafruit_requests
 from secrets import secrets
 
@@ -14,14 +15,34 @@ print("WIFI: " + str(wifi.radio.ipv4_address))
 pool = socketpool.SocketPool(wifi.radio)
 sslc = ssl.create_default_context()
 requests = adafruit_requests.Session(pool, sslc)
- 
-url = "https://httpbin.org/get"
 
-print(f"getting {url} (twice)")
+urlhttp  = "http://wifitest.adafruit.com/testwifi/index.html"
 
-response = requests.get(url)
-print(f"{response.status_code}, texte: {response.text}")
+print("-"*70)
+print(f"getting {urlhttp}")
+try:
+	response = requests.get(urlhttp)
+	print(f"{response.status_code}, texte: {response.text}")
+except Exception as ex:
+	sys.print_exception(ex)
 
-response = requests.get(url)
-jason = response.json()
-print(f"{response.status_code}, User Agent: {jason['headers']['User-Agent']}")
+urlhttps = "https://httpbin.org/get"
+
+print("-"*70)
+print(f"getting {urlhttps} ax text")
+try:
+	response = requests.get(urlhttps)
+	print(f"{response.status_code}, texte: {response.text}")
+except Exception as ex:
+	sys.print_exception(ex)
+
+print("-"*70)
+print(f"getting {urlhttps} as JSON")
+try:
+	response = requests.get(urlhttps)
+	jason = response.json()
+	print(f"{response.status_code}, User Agent: {jason['headers']['User-Agent']}")
+except Exception as ex:
+	sys.print_exception(ex)
+
+print("-"*70)
